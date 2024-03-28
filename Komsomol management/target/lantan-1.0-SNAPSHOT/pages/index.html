@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="shortcut icon" href="../img/favicon.ico" type="image/x-icon">
+		<title>网上共青团·智慧团建</title>
+		<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/4.7.0/css/font-awesome.css">
+		<link rel="stylesheet" href="../css/mainsjl.css" />
+	</head>
+	<body>
+		<div id="beijing">
+			<!--头部开始-->
+			<div class="header">
+				    <img id="logo" src="../img/logo.png" alt="" />
+				    <br />
+					<img id="title" src="../img/title.png" alt="" />
+			</div>
+			<!--头部结束-->
+
+			<!--中部开始-->
+			<div class="main">
+				<form method="post">
+					<!--身份证号码信息-->
+					<div class="info">
+						<div class="logo">
+							<span class="fa fa-user" ></span>
+						</div>
+						<input id="userID" type="text" maxlength="18" placeholder="身份证号码" />
+						<br/><br/>
+						<div id="id_err" style="font-size: 12px;display: none" >请输入身份证号码</div>
+					</div>
+					<!--密码信息-->
+					<div class="info">
+						<div class="logo">
+							<span class="fa fa-lock" ></span>
+						</div>
+						<input id="password" type="password" maxlength="18" placeholder="密码" />
+						<div class="logo" style="font-size: 28px;">
+							<span class="fa fa-eye" ></span>
+						</div>
+						<br/><br/>
+						<div id="pwd_err" style="font-size: 12px;display: none" >请正确输入密码</div>
+					</div>
+					<!--验证码信息-->
+					<div class="yzm">
+						<input id="yzminfo" type="text" maxlength="4" placeholder="验证码" />
+						<img id="yanzhengma" src="/login" alt="" title="图片看不清？点击重新得到验证码" onclick="refresh()" />
+						<div id="yzm_err" style="font-size: 12px;display: none" >请正确输入验证码</div>
+					</div>
+					<div style="clear: both;"></div>
+					<!--辅助选项-->
+					<div class="help">
+						<input id="submit" type="button" value="登录"/>
+						<div class="item" >
+							<a href="regpick.html">注册</a>
+								<span> | </span>
+							<a href="resetpwd.html">忘记密码</a>
+								<span> | </span>
+							<a href="https://zhtj.youth.cn/zhtj/static/help/index.html">常见问题 </a>
+								<span> | </span>
+							<a href="https://zhtj.youth.cn/zhtj/help/telephone">咨询电话</a>
+							<div id="saomadenglu">
+								<a href="#">扫码登录</a>
+								<div class="logo">
+									<span class="fa fa-qrcode" ></span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</form>
+			</div>
+			<!--中部结束-->
+
+			<!--底部开始-->
+			<div class="footer" >
+				<h4>主办：中国共产主义青年团中央委员会 京ICP备11020872号-17</h4>
+			</div>
+			<div class="xiaochengxu" >
+				<img id="xiaochnegxu" src="../img/xiaochengxu.jpg"/>
+				<div>
+					<span>扫码登录小程序</span>
+				</div>
+				<img id="guanghuan" src="../img/guanghuan.png"/>
+			</div>
+			<!--底部结束-->
+		</div>
+	</body>
+	<script src="../js/axios-0.18.0.js"></script>
+    <script>
+        /* 刷新验证码 */
+        function refresh() {
+            document.getElementById("yanzhengma").src = "/login?time=" + new Date().getTime();
+        }
+		/*提交登录*/
+        document.getElementById("submit").onclick = function () {
+			// 获取表单数据
+			let card = document.getElementById("userID").value;
+			let pwd = document.getElementById("password").value;
+			let yzm = document.getElementById("yzminfo").value;
+			//根据填写给提示
+			if (card=== '') document.getElementById("id_err").style.display = '';
+			if (pwd=== '') document.getElementById("pwd_err").style.display = '';
+			if (yzm=== '') document.getElementById("yzm_err").style.display = '';
+			if (card!==''&&pwd!== ''&&yzm!== '')
+			{
+				// 创建表单数组
+				var formParams =[{},{}]
+				formParams[0].card=card;
+				formParams[0].pwd=pwd;
+				formParams[1].yzm=yzm;
+				//发送登录请求
+				axios.post("/login", formParams).then(function (resp) {
+					if (resp.data === true)
+						location.href = "mine/home.html";
+					else {
+						alert("信息或验证码填写错误！");
+						location.reload();
+					}
+				})
+			}else alert("请填写完整！");
+        }
+    </script>
+</html>

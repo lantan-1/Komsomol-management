@@ -1,0 +1,122 @@
+.el-header {
+    background: url("../img/lipuBackground.png") repeat-x;
+    color: #333;
+    line-height: 60px;
+    border-bottom-color: #bb3634;
+}
+
+.el-aside {
+    color: #333;
+}
+
+.el-menu-item, .el-submenu__title {
+    border-bottom: 1px solid white;
+}
+
+.el-menu-item:hover {
+    background-color: #e84a43;
+}
+
+.el-menu-item:focus {
+    background-color: #e84a43;
+}
+
+.el-submenu__title:hover {
+    background-color: #e84a43;
+}
+
+.el-submenu__title:focus {
+    background-color: #e84a43;
+}
+
+.el-menu-item.is-active {
+    color: white;
+}
+
+.el-submenu.is-active .el-submenu__title {
+    border-bottom-color: white;
+}
+
+.el-menu-item i, .el-submenu__title i, .el-dropdown {
+    color: white;
+    cursor: pointer;
+}
+
+.el-row {
+    padding-left: 50px;
+    margin-bottom: 40px;
+    margin-top: 40px;
+}
+
+.el-col {
+    border-radius: 5px;
+}
+
+.bg-purple-dark {
+    background: #99a9bf;
+}
+
+.bg-purple {
+    background: #d3dce6;
+}
+
+.bg-purple-light {
+    background: #e5e9f2;
+}
+
+.grid-content {
+    border-radius: 4px;
+    min-height: 36px;
+}
+
+.row-bg {
+    padding: 10px 0;
+    background-color: #f9fafc;
+}
+
+.text {
+    font-size: 14px;
+}
+
+.item {
+    margin-bottom: 18px;
+}
+
+.clearfix:before,
+.clearfix:after {
+    display: table;
+    content: "";
+}
+
+.clearfix:after {
+    clear: both
+}
+
+.box-card {
+    width: 480px;
+}
+
+img {
+    object-fit: none;
+}
+#images{
+    width: 1000px;
+    height: 75px;
+    margin: 0 auto;
+    float: left;
+    position: relative;
+    left: 50px;
+}
+#logo{
+    width: 58px;
+    margin-top: 8px;
+    float: left;
+    object-fit: cover;
+}
+#title{
+    height: 32px;
+    margin-top: 24px;
+    margin-left: 20px;
+    float: left;
+    object-fit: cover;
+}

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh">
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="../img/favicon.ico" type="image/x-icon">
+    <title>网上共青团·智慧团建</title>
+    <link rel="stylesheet" type="text/css" href="https://cdn.staticfile.org/font-awesome/4.7.0/css/font-awesome.css">
+    <link rel="stylesheet" type="text/css" href="../css/resetpwd.css"/>
+    <!-- 引入vue -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.js"></script>
+    <!-- 引入element-ui样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入element-ui组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <!-- 引入axios-->
+    <script src="../../js/axios-0.18.0.js"></script>
+</head>
+<body>
+<div id="app">
+    <div id="beijing">
+        <div id="top">
+            <div id="images">
+                <img id="logo" src="../img/logo.png" alt=""/>
+                <img id="title" src="../img/title.png" alt=""/>
+            </div>
+        </div>
+        <div id="main">
+            <div id="center">
+                <h2>共青团员注册</h2>
+                <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="100px"
+                         class="demo-ruleForm">
+                    <el-form-item label="身份证" prop="card">
+                        <el-input v-model="ruleForm.card"></el-input>
+                    </el-form-item>
+                    <el-form-item label="姓名" prop="name">
+                        <el-input v-model="ruleForm.name"></el-input>
+                    </el-form-item>
+                    <el-form-item label="民族" prop="ethnic">
+                        <el-select v-model="ruleForm.ethnic" placeholder="请选择民族">
+                            <el-option label="汉族" value="汉族"></el-option>
+                            <el-option label="壮族" value="壮族"></el-option>
+                            <el-option label="回族" value="回族"></el-option>
+                            <el-option label="满族" value="满族"></el-option>
+                            <el-option label="维吾尔族" value="维吾尔族"></el-option>
+                            <el-option label="苗族" value="苗族"></el-option>
+                            <el-option label="彝族" value="彝族"></el-option>
+                            <el-option label="土家族" value="土家族"></el-option>
+                            <el-option label="藏族" value="藏族"></el-option>
+                            <el-option label="蒙古族" value="蒙古族"></el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="手机" prop="phone">
+                        <el-input v-model="ruleForm.phone"></el-input>
+                    </el-form-item>
+                    <el-form-item label="团组织" prop="organization">
+                        <el-select v-model="ruleForm.organization" placeholder="请选择团组织">
+                            <el-option label="计科2101班团支部" value="计科2101班团支部"></el-option>
+                            <el-option label="计科2102班团支部" value="计科2102班团支部"></el-option>
+                            <el-option label="计科2103班团支部" value="计科2103班团支部"></el-option>
+                            <el-option label="计科2104班团支部" value="计科2104班团支部"></el-option>
+                            <el-option label="计科2105班团支部" value="计科2105班团支部"></el-option>
+                            <el-option label="计科2106班团支部" value="计科2106班团支部"></el-option>
+                            <el-option label="计科2107班团支部" value="计科2107班团支部"></el-option>
+                            <el-option label="计科2108班团支部" value="计科2108班团支部"></el-option>
+                            <el-option label="计科2109班团支部" value="计科2109班团支部"></el-option>
+                            <el-option label="计科2110班团支部" value="计科2110班团支部"></el-option>
+                            <el-option label="计科2111班团支部" value="计科2111班团支部"></el-option>
+                            <el-option label="计科2112班团支部" value="计科2112班团支部"></el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="密码" prop="pass">
+                        <el-input type="password" v-model="ruleForm.pass" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="确认密码" prop="checkPass">
+                        <el-input type="password" v-model="ruleForm.checkPass" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="年龄" prop="age">
+                        <el-input v-model.number="ruleForm.age"></el-input>
+                    </el-form-item>
+
+                    <el-form-item>
+                        <el-button type="primary" @click="ESC()">返回</el-button>
+                        <el-button type="warning" @click="resetForm('ruleForm')">重置</el-button>
+                        <el-button type="danger" @click="submitForm('ruleForm')">提交</el-button>
+                    </el-form-item>
+                </el-form>
+                <el-dialog title="提示" :visible.sync="dialogVisibleTure" width="30%">
+                    <span>注册成功！请登录~</span>
+                    <span slot="footer" class="dialog-footer">
+                        <el-button type="primary" @click="toLogin()">确 定</el-button>
+                        <el-button @click="dialogVisibleTure = false">取 消</el-button>
+                    </span>
+                </el-dialog>
+                <el-dialog title="提示" :visible.sync="dialogVisibleFalse" width="30%">
+                    <span>注册失败！身份证或已存在用户~</span>
+                    <span slot="footer" class="dialog-footer">
+                        <el-button type="primary" @click="dialogVisibleFalse = false">确 定</el-button>
+                        <el-button @click="dialogVisibleFalse = false">取 消</el-button>
+                    </span>
+                </el-dialog>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script>
+    new Vue({
+        el: "#app",
+        data() {
+            var checkAge = (rule, value, callback) => {
+                if (!value) {
+                    return callback(new Error('年龄不能为空'));
+                }
+                setTimeout(() => {
+                    if (!Number.isInteger(value)) {
+                        callback(new Error('请输入数字值'));
+                    } else {
+                        if (value < 14) {
+                            callback(new Error('入团必须年满14岁'));
+                        } else if (value > 14) {
+                            callback(new Error('入团必须小于28岁'));
+                        } else {
+                            callback();
+                        }
+                    }
+                }, 1000);
+            };
+            var validatePass = (rule, value, callback) => {
+                if (value === '') {
+                    callback(new Error('请输入密码'));
+                } else {
+                    if (this.ruleForm.checkPass !== '') {
+                        this.$refs.ruleForm.validateField('checkPass');
+                    }
+                    callback();
+                }
+            };
+            var validatePass2 = (rule, value, callback) => {
+                if (value === '') {
+                    callback(new Error('请再次输入密码'));
+                } else if (value !== this.ruleForm.pass) {
+                    callback(new Error('两次输入密码不一致!'));
+                } else {
+                    callback();
+                }
+            };
+            return {
+                ruleForm: {
+                    organization: '',
+                    name: '',
+                    card: '',
+                    ethnic: '',
+                    phone: '',
+                    pass: '',
+                    checkPass: '',
+                    age: ''
+                },
+                dialogVisibleTure: false,
+                dialogVisibleFalse: false,
+                newOrganization: {
+                    id: '',
+                    name: '',
+                    user: {
+                        id: '',
+                        organization: '',
+                        name: '',
+                        card: '',
+                        ethnic: '',
+                        phone: '',
+                        pwd: ''
+                    }
+                },
+                rules: {
+                    card: [
+                        {required: true, message: '请输入身份证', trigger: 'blur'},
+                        {min: 18, max: 18, message: '身份证长度位 18 位', trigger: 'blur'}
+                    ],
+                    name: [
+                        {required: true, message: '请输入姓名', trigger: 'blur'},
+                        {min: 2, max: 10, message: '长度在 2 到 10 个汉字', trigger: 'blur'}
+                    ],
+                    ethnic: [
+                        {required: true, message: '请选择民族', trigger: 'change'}
+                    ],
+                    phone: [
+                        {required: true, message: '请输入手机号', trigger: 'blur'},
+                        {min: 5, max: 11, message: '长度在 5 到 11 个数字', trigger: 'blur'}
+                    ],
+                    organization: [
+                        {required: true, message: '请选择团组织', trigger: 'change'}
+                    ],
+                    pass: [
+                        {validator: validatePass, trigger: 'blur'}
+                    ],
+                    checkPass: [
+                        {validator: validatePass2, trigger: 'blur'}
+                    ],
+                    age: [
+                        {validator: checkAge, trigger: 'blur'}
+                    ]
+                }
+            };
+        },
+        methods: {
+            saveNewOrganization() {
+                this.newOrganization.name = this.ruleForm.organization;
+                this.newOrganization.user.name = this.ruleForm.name;
+                this.newOrganization.user.card = this.ruleForm.card;
+                this.newOrganization.user.ethnic = this.ruleForm.ethnic;
+                this.newOrganization.user.phone = this.ruleForm.phone;
+                this.newOrganization.user.pwd = this.ruleForm.pass;
+            },
+            submitForm(formName) {
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        this.saveNewOrganization();
+                        console.log(this.newOrganization);
+                        axios.post("/users", this.newOrganization).then((resp) => {
+                            if (resp.data === true) {
+                                this.dialogVisibleTure = true;
+
+                            } else this.dialogVisibleFalse = true;
+                        });
+                    } else {
+                        console.log('error submit!!');
+                        return false;
+                    }
+                });
+            },
+            resetForm(formName) {
+                this.$refs[formName].resetFields();
+            },
+            ESC() {
+                location.href = "regpick.html"
+            },
+            toLogin() {
+                location.href = "index.html"
+            }
+        },
+        //钩子函数
+        mounted() {
+            ruleForm = {};
+        }
+    })
+</script>
+</html>

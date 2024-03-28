@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>网上共青团·智慧团建</title>
+    <!-- 引入vue -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.js"></script>
+    <!-- 引入element-ui样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入element-ui组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <!-- 引入axios-->
+    <script src="../../js/axios-0.18.0.js"></script>
+    <style>
+        html,body{
+            font-family: helvetica,"microsoft yahei",arial,sans-serif;
+            width: 100%;
+            height: 100%;
+            /*background-color: #eeeeee;*/
+        }
+        .el-header {
+            background-color: #d23c29;
+            color: #333;
+            line-height: 60px;
+        }
+
+        .el-aside {
+            color: #333;
+        }
+
+        .el-menu-item, .el-submenu__title {
+            border-bottom: 1px solid white;
+        }
+
+        .el-menu-item:hover {
+            background-color: #e84a43;
+        }
+
+        .el-menu-item:focus {
+            background-color: #e84a43;
+        }
+
+        .el-submenu__title:hover {
+            background-color: #e84a43;
+        }
+
+        .el-submenu__title:focus {
+            background-color: #e84a43;
+        }
+
+        .el-menu-item.is-active {
+            color: white;
+        }
+
+        .el-submenu.is-active .el-submenu__title {
+            border-bottom-color: white;
+        }
+
+        .el-menu-item i, .el-submenu__title i, .el-dropdown {
+            color: white;
+            cursor: pointer;
+        }
+
+        .el-row {
+            padding-left: 50px;
+            margin-bottom: 40px;
+            margin-top: 40px;
+        }
+
+        .el-col {
+            border-radius: 5px;
+        }
+
+        .bg-purple-dark {
+            background: #99a9bf;
+        }
+
+        .bg-purple {
+            background: #d3dce6;
+        }
+
+        .bg-purple-light {
+            background: #e5e9f2;
+        }
+
+        .grid-content {
+            border-radius: 4px;
+            min-height: 36px;
+        }
+
+        .row-bg {
+            padding: 10px 0;
+            background-color: #f9fafc;
+        }
+
+        .text {
+            font-size: 14px;
+        }
+
+        .item {
+            margin-bottom: 18px;
+        }
+
+        .clearfix:before,
+        .clearfix:after {
+            display: table;
+            content: "";
+        }
+
+        .clearfix:after {
+            clear: both
+        }
+
+        .box-card {
+            width: 480px;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <el-container style="height: 500px; border: 1px solid #eee">
+        <el-header style="text-align: right; font-size: 12px">
+            <el-dropdown>
+                <i class="el-icon-setting" style="margin-right: 20px;"><span>系统设置</span></i>
+                <el-dropdown-menu slot="dropdown" style="margin-right: 115px;">
+                    <el-dropdown-item @click.native="changepwd()">修改密码</el-dropdown-item>
+                    <el-dropdown-item @click.native="destroy()">注销账户</el-dropdown-item>
+                    <el-dropdown-item>设置默认组织</el-dropdown-item>
+                    <el-dropdown-item>安全中心</el-dropdown-item>
+                </el-dropdown-menu>
+                <i class="el-icon-question" style="margin-right: 15px;"><span>帮助</span></i>
+                <i class="el-icon-switch-button" style="margin-right: 15px;" @click="logout()">
+                    <span @click.native="logout()">退出</span>
+                </i>
+            </el-dropdown>
+        </el-header>
+
+        <el-container>
+            <el-aside width="250px" style="background-color: #e32322;color: white">
+                <template>
+                    <el-row class="demo-avatar demo-basic" style="height: 200px;margin: 0;padding: 0">
+                        <el-col :span="12" style="margin: 37px 80px;width: 100px;">
+                            <div class="block">
+                                <el-avatar :size="100" :src="circleUrl"></el-avatar>
+                            </div>
+                            <div v-model="organization.user.name" class="sub-title" style="text-align: center;font-weight: 700;position: relative;top: 10px">
+                                {{organization.user.name}}
+                            </div>
+                        </el-col>
+                    </el-row>
+                </template>
+
+                <el-menu :default-openeds="['1', '7']" style="background-color: #e32322;">
+                    <el-menu-item index="1" style="color: white" @click.native="home()"><i class="el-icon-s-home"></i>我的首页
+                    </el-menu-item>
+                    <el-menu-item index="2" style="color: white" @click.native="myorganization()">
+                        <i class="el-icon-s-custom"></i>我的组织
+                    </el-menu-item>
+                    <el-submenu index="3" style="color: white">
+                        <template slot="title" style="color: white"><i class="el-icon-edit-outline"></i>
+                            <span style="color: white">三会</span>
+                        </template>
+                        <el-menu-item-group>
+                            <el-menu-item index="3-1">支部团员大会</el-menu-item>
+                            <el-menu-item index="3-2">支部委员会</el-menu-item>
+                            <el-menu-item index="3-3">团小组会</el-menu-item>
+                        </el-menu-item-group>
+                    </el-submenu>
+                    <el-submenu index="4" style="color: white">
+                        <template slot="title" style="color: white"><i class="el-icon-folder-opened"></i>
+                            <span style="color: white">团课</span>
+                        </template>
+                        <el-menu-item-group>
+                            <el-menu-item index="4-1">团课</el-menu-item>
+                        </el-menu-item-group>
+                    </el-submenu>
+                    <el-menu-item index="5" style="color: white"><i class="el-icon-connection"></i>两制</el-menu-item>
+                    <el-menu-item index="6" style="color: white">
+                        <i class="el-icon-attract"></i>团日活动
+                    </el-menu-item>
+                    <el-menu-item index="7" style="color: white"><i class="el-icon-refresh"></i>关系接转</el-menu-item>
+                </el-menu>
+            </el-aside>
+
+            <el-main>
+                <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" @select="handleSelect">
+                    <el-menu-item index="1">
+                        <i class="el-icon-location-information" style="color: red"></i>当前位置:团日活动
+                    </el-menu-item>
+                </el-menu>
+                <div class="line"></div>
+                <el-row :gutter="20">
+                    <el-col :span="23">
+                        <div class="grid-content bg-purple">
+                            <template>
+                                <el-table :data="activityList" stripe border style="width: 100%">
+                                    <el-table-column type="index" label="序号" width="100" align="center"></el-table-column>
+                                    <el-table-column prop="type" label="活动类型" width="120" align="center"></el-table-column>
+                                    <el-table-column prop="date" label="活动日期" width="120" align="center"></el-table-column>
+                                    <el-table-column prop="host" label="活动主持人" width="120" align="center"></el-table-column>
+                                    <el-table-column prop="place" label="活动地点" width="120" align="center"></el-table-column>
+                                    <el-table-column prop="content" label="活动内容"  align="center"></el-table-column>
+                                    <el-table-column label="操作" width="110" align="center">
+                                        <template slot-scope="scope">
+                                            <el-button icon="el-icon-edit" type="primary" @click.native="updateActivity(scope.row)">编辑</el-button>
+                                            <el-button icon="el-icon-delete" type="danger"
+                                                       style="margin-top: 10px;margin-left: 0;" @click="deleteActivity(scope.row)">删除</el-button>
+                                        </template>
+                                    </el-table-column>
+                                </el-table>
+                                <el-dialog title="编辑团日活动" :visible.sync="dialogVisible" width="30%">
+
+
+                                    <span slot="footer" class="dialog-footer">
+                                        <el-button @click="dialogVisible = false">取 消</el-button>
+                                        <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+                                    </span>
+                                </el-dialog>
+                            </template>
+                        </div>
+                    </el-col>
+                </el-row>
+            </el-main>
+        </el-container>
+    </el-container>
+
+
+    <script>
+        new Vue({
+            el: "#app",
+            data() {
+                return {
+                    organization: {},
+                    activityList:[],
+                    activity:{},
+                    circleUrl: "https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png",
+                    dialogVisible: false
+                }
+            },
+            methods: {
+                changepwd() {
+                    location.href = "changepwd.html";
+                },
+                destroy() {
+                    location.href = "destroy.html";
+                },
+                logout() {
+                    axios.get("/users/logout").then(function (resp) {
+                        location.href = "../index.html";
+                    })
+                },
+                update() {
+                    location.href = "update.html";
+                },
+                home() {
+                    location.href = "home.html";
+                },
+                myorganization() {
+                    location.href = "myorganization.html";
+                },
+                updateActivity(row){
+                    this.dialogVisible = true;
+                    this.activity = row;
+                },
+                deleteActivity(){
+
+                },
+
+
+                getAllByDate(){
+
+                }
+            },
+            //钩子函数
+            mounted() {
+                var _this = this;
+                axios.get("/users/1").then(function (resp) {
+                    _this.organization = resp.data
+                });
+                axios.get("/activities").then(function (resp) {
+                    _this.activityList = resp.data
+                });
+
+            }
+        })
+    </script>
+</div>
+</body>
+</html>

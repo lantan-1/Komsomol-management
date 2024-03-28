@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="../../img/favicon.ico" type="image/x-icon">
+    <title>网上共青团·智慧团建</title>
+    <!-- 引入vue -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.js"></script>
+    <!-- 引入element-ui样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入element-ui组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <!-- 引入axios -->
+    <script src="../../js/axios-0.18.0.js"></script>
+    <!-- 引入特定的css -->
+    <link rel="stylesheet" href="../../css/activity.css" />
+</head>
+<body>
+<div id="app">
+    <el-container style="height: 500px; border: 1px solid #eee">
+        <el-header style="height:74px; text-align: right; font-size: 12px">
+            <div id="images">
+                <img id="logo" src="../../img/logo.png" alt=""/>
+                <img id="title" src="../../img/title.png" alt=""/>
+            </div>
+            <el-dropdown style="position: relative;top: 8px">
+                <i class="el-icon-setting" style="margin-right: 20px;"><span>系统设置</span></i>
+                <el-dropdown-menu slot="dropdown" style="margin-right: 115px;">
+                    <el-dropdown-item @click.native="changepwd()">修改密码</el-dropdown-item>
+                    <el-dropdown-item @click.native="destroy()">注销账户</el-dropdown-item>
+                    <el-dropdown-item>设置默认组织</el-dropdown-item>
+                    <el-dropdown-item>安全中心</el-dropdown-item>
+                </el-dropdown-menu>
+                <i class="el-icon-question" style="margin-right: 15px;"><span>帮助</span></i>
+                <i class="el-icon-switch-button" style="margin-right: 15px;" @click="logout()">
+                    <span @click.native="logout()">退出</span>
+                </i>
+            </el-dropdown>
+        </el-header>
+
+        <el-container>
+            <el-aside width="250px" style="background-color: #e32322;color: white">
+                <template>
+                    <el-row class="demo-avatar demo-basic" style="height: 200px;margin: 0;padding: 0">
+                        <el-col :span="12" style="margin: 37px 80px;width: 100px;">
+                            <div class="block">
+                                <el-avatar :size="100" :fit="none">
+                                    <img src="../../img/boy.png">
+                                </el-avatar>
+                            </div>
+                            <div v-model="organization.user.name" class="sub-title"
+                                 style="text-align: center;font-weight: 700;position: relative;top: 10px">
+                                {{organization.user.name}}
+                            </div>
+                        </el-col>
+                    </el-row>
+                </template>
+
+                <el-menu :default-openeds="['1', '7']" style="background-color: #e32322;">
+                    <el-menu-item index="1" style="color: white" @click.native="home()"><i class="el-icon-s-home"></i>我的首页
+                    </el-menu-item>
+                    <el-menu-item index="2" style="color: white" @click.native="myorganization()">
+                        <i class="el-icon-s-custom"></i>我的组织
+                    </el-menu-item>
+                    <el-submenu index="3" style="color: white">
+                        <template slot="title" style="color: white"><i class="el-icon-edit-outline"></i>
+                            <span style="color: white">三会</span>
+                        </template>
+                        <el-menu-item-group>
+                            <el-menu-item index="3-1">支部团员大会</el-menu-item>
+                            <el-menu-item index="3-2">支部委员会</el-menu-item>
+                            <el-menu-item index="3-3">团小组会</el-menu-item>
+                        </el-menu-item-group>
+                    </el-submenu>
+                    <el-submenu index="4" style="color: white">
+                        <template slot="title" style="color: white"><i class="el-icon-folder-opened"></i>
+                            <span style="color: white">团课</span>
+                        </template>
+                        <el-menu-item-group>
+                            <el-menu-item index="4-1">团课</el-menu-item>
+                        </el-menu-item-group>
+                    </el-submenu>
+                    <el-menu-item index="5" style="color: white"><i class="el-icon-connection"></i>两制</el-menu-item>
+                    <el-menu-item index="6" style="color: white">
+                        <i class="el-icon-attract"></i>团日活动
+                    </el-menu-item>
+                    <el-menu-item index="7" style="color: white"><i class="el-icon-refresh"></i>关系接转</el-menu-item>
+                </el-menu>
+            </el-aside>
+
+            <el-main>
+                <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" @select="handleSelect">
+                    <el-menu-item index="1">
+                        <i class="el-icon-location-information" style="color: red"></i>当前位置:团日活动
+                    </el-menu-item>
+                </el-menu>
+                <div class="line"></div>
+                <el-row :gutter="20">
+                    <el-col :span="23">
+                            <el-form :inline="true" :model="formInline" class="demo-form-inline">
+                                <el-form-item label="活动日期">
+                                    <template>
+                                        <div class="block">
+                                            <el-date-picker
+                                                    v-model="value1"
+                                                    align="left"
+                                                    type="date"
+                                                    placeholder="选择活动日期"
+                                                    :picker-options="pickerOptions">
+                                            </el-date-picker>
+                                        </div>
+                                    </template>
+                                </el-form-item>
+                                <el-form-item>
+                                    <el-button type="primary" @click="getAllByDate()">查询</el-button>
+                                </el-form-item>
+                                <el-form-item>
+                                    <el-button type="success" @click="dialogVisibleSave = true">添加活动</el-button>
+                                </el-form-item>
+
+                                <el-dialog title="添加团日活动" :visible.sync="dialogVisibleSave" width="30%">
+                                    <el-form :model="editActivity" :rules="rules" ref="editActivity" label-width="100px"
+                                             class="demo-ruleForm">
+                                        <el-form-item label="活动类型" prop="type">
+                                            <el-input v-model="editActivity.type"></el-input>
+                                        </el-form-item>
+                                        <el-form-item label="活动日期" prop="date">
+                                            <div class="block">
+                                                <el-date-picker v-model="editActivity.date"
+                                                                type="date"
+                                                                placeholder="选择活动日期"
+                                                                :picker-options="pickerOptions">
+                                                </el-date-picker>
+                                            </div>
+                                        </el-form-item>
+                                        <el-form-item label="活动主持人" prop="host">
+                                            <el-input v-model="editActivity.host"></el-input>
+                                        </el-form-item>
+                                        <el-form-item label="活动地点" prop="place">
+                                            <el-input v-model="editActivity.place"></el-input>
+                                        </el-form-item>
+                                        <el-form-item label="活动内容" prop="content">
+                                            <el-input type="textarea" v-model="editActivity.content"></el-input>
+                                        </el-form-item>
+                                        <el-form-item>
+                                            <el-button type="primary" @click="submitSaveForm('editActivity')">确定
+                                            </el-button>
+                                            <el-button @click="resetForm('editActivity')">取消</el-button>
+                                        </el-form-item>
+                                    </el-form>
+                                </el-dialog>
+
+                            </el-form>
+                    </el-col>
+                </el-row>
+                <el-row :gutter="20">
+                    <el-col :span="23">
+                        <div class="grid-content bg-purple">
+                            <template>
+                                <el-table :data="activityList" stripe border style="width: 100%">
+                                    <el-table-column type="index" label="序号" width="100"
+                                                     align="center"></el-table-column>
+                                    <el-table-column prop="type" label="活动类型" width="120"
+                                                     align="center"></el-table-column>
+                                    <el-table-column prop="date" label="活动日期" width="120"
+                                                     align="center"></el-table-column>
+                                    <el-table-column prop="host" label="活动主持人" width="120"
+                                                     align="center"></el-table-column>
+                                    <el-table-column prop="place" label="活动地点" width="120"
+                                                     align="center"></el-table-column>
+                                    <el-table-column prop="content" label="活动内容" align="center"></el-table-column>
+                                    <el-table-column label="操作" width="110" align="center">
+                                        <template slot-scope="scope">
+                                            <el-button icon="el-icon-edit" type="primary"
+                                                       @click="updateActivity(scope.row)">编辑
+                                            </el-button>
+                                            <el-button icon="el-icon-delete" type="danger"
+                                                       style="margin-top: 10px;margin-left: 0;"
+                                                       @click="deleteActivity(scope.row)">删除
+                                            </el-button>
+                                        </template>
+                                    </el-table-column>
+                                </el-table>
+                                <el-dialog title="删除该活动" :visible.sync="dialogVisibleDelete" width="30%"
+                                           :before-close="handleClose">
+                                    <span>确定要删除这条活动吗？</span>
+                                    <span slot="footer" class="dialog-footer">
+                                        <el-button type="primary" @click="deleteTrue()">确 定</el-button>
+                                        <el-button @click="dialogVisibleDelete = false">取 消</el-button>
+                                    </span>
+                                </el-dialog>
+                                <el-dialog title="编辑团日活动" :visible.sync="dialogVisibleUpdate" width="30%">
+                                    <el-form :model="editActivity" :rules="rules" ref="editActivity" label-width="100px"
+                                             class="demo-ruleForm">
+                                        <el-form-item label="活动类型" prop="type">
+                                            <el-input v-model="editActivity.type"></el-input>
+                                        </el-form-item>
+                                        <el-form-item label="活动日期" prop="date">
+                                            <div class="block">
+                                                <el-date-picker v-model="editActivity.date"
+                                                                type="date"
+                                                                placeholder="选择活动日期"
+                                                                :picker-options="pickerOptions">
+                                                </el-date-picker>
+                                            </div>
+                                        </el-form-item>
+                                        <el-form-item label="活动主持人" prop="host">
+                                            <el-input v-model="editActivity.host"></el-input>
+                                        </el-form-item>
+                                        <el-form-item label="活动地点" prop="place">
+                                            <el-input v-model="editActivity.place"></el-input>
+                                        </el-form-item>
+                                        <el-form-item label="活动内容" prop="content">
+                                            <el-input type="textarea" v-model="editActivity.content"></el-input>
+                                        </el-form-item>
+                                        <el-form-item>
+                                            <el-button type="primary" @click="submitUpdateForm('editActivity')">确定
+                                            </el-button>
+                                            <el-button @click="resetForm('editActivity')">取消</el-button>
+                                        </el-form-item>
+                                    </el-form>
+                                </el-dialog>
+                            </template>
+                        </div>
+                    </el-col>
+                </el-row>
+            </el-main>
+        </el-container>
+    </el-container>
+
+
+    <script>
+        new Vue({
+            el: "#app",
+            data() {
+                return {
+                    organization: {},
+                    activityList: [],
+                    dialogVisibleUpdate: false,
+                    dialogVisibleDelete: false,
+                    dialogVisibleSave:false,
+                    editActivity: {},
+                    value1: '',
+                    rules: {
+                        type: [
+                            {required: true, message: '请输入活动类型', trigger: 'blur'},
+                            {min: 2, max: 10, message: '长度在 2 到 10 个汉字', trigger: 'blur'}
+                        ],
+                        date: [
+                            {required: true, message: '请选择活动日期', trigger: 'change'}
+                        ],
+                        host: [
+                            {required: true, message: '请输入活动主持人', trigger: 'blur'},
+                            {min: 2, max: 10, message: '长度在 2 到 10 个汉字', trigger: 'blur'}
+                        ],
+                        place: [
+                            {required: true, message: '请输入活动地点', trigger: 'blur'},
+                            {min: 2, max: 10, message: '长度在 2 到 10 个汉字', trigger: 'blur'}
+                        ],
+                        content: [
+                            {required: true, message: '请输入活动地点', trigger: 'blur'},
+                            {min: 2, max: 300, message: '长度在 2 到 300 个汉字', trigger: 'blur'}
+                        ]
+                    },
+                    pickerOptions: {
+                        disabledDate(time) {
+                            return time.getTime() > Date.now();
+                        }
+                    }
+                }
+            },
+            methods: {
+                newDate(time) {
+                    var date = new Date(time)
+                    var y = date.getFullYear()
+                    var m = date.getMonth() + 1
+                    m = m < 10 ? '0' + m : m
+                    var d = date.getDate()
+                    d = d < 10 ? '0' + d : d
+                    return y + '-' + m + '-' + d
+                },
+                changepwd() {
+                    location.href = "changepwd.html";
+                },
+                destroy() {
+                    location.href = "destroy.html";
+                },
+                logout() {
+                    axios.get("/users/logout").then(function (resp) {
+                        location.href = "../index.html";
+                    })
+                },
+                update() {
+                    location.href = "update.html";
+                },
+                home() {
+                    location.href = "home.html";
+                },
+                myorganization() {
+                    location.href = "myorganization.html";
+                },
+                submitUpdateForm(formName) {
+                    this.$refs[formName].validate((valid) => {
+                        if (valid) {
+                            /*console.log(this.editActivity);*/
+                            axios.put("/activities", this.editActivity).then(function (resp) {
+                                alert("更新成功！");
+                                location.reload();
+                            })
+                        } else {
+                            alert("更新失败！");
+                            location.reload();
+                            return false;
+                        }
+                    });
+                },
+                submitSaveForm(formName) {
+                    this.$refs[formName].validate((valid) => {
+                        console.log(this.editActivity);
+                        if (valid) {
+                            this.editActivity.date = this.newDate(this.editActivity.date).toString();
+                            this.editActivity.organization = this.organization.user.organization;
+                            console.log(this.editActivity);
+                            axios.post("/activities", this.editActivity).then(function (resp) {
+                                alert("添加成功！");
+                                location.reload();
+                            })
+                        } else {
+                            alert("添加失败！");
+                            location.reload();
+                            return false;
+                        }
+                    });
+                },
+                updateActivity(row) {
+                    console.log(row);
+                    this.editActivity = row;
+                    this.dialogVisibleUpdate = true;
+                },
+                deleteActivity(row) {
+                    /*console.log(row);*/
+                    this.editActivity = row;
+                    this.dialogVisibleDelete = true;
+                },
+                deleteTrue() {
+                    /*                    console.log("deleteTrue");
+                                        console.log(this.editActivity.id);*/
+                    axios.delete("/activities/" + this.editActivity.id).then(function (resp) {
+                        this.dialogVisibleDelete = false;
+                        alert("删除成功！");
+                        location.reload();
+                    });
+                },
+                getAllByDate() {
+                    console.log(this.newDate(this.value1));
+                    axios.get("/activities/"+this.newDate(this.value1).toString()).then(function (resp){
+                        this.activityList = resp.data
+                    })
+                }
+            },
+            //钩子函数
+            mounted() {
+                var _this = this;
+                axios.get("/users/1").then(function (resp) {
+                    _this.organization = resp.data
+                })
+                axios.get("/activities").then(function (resp) {
+                    _this.activityList = resp.data
+                })
+            }
+        })
+    </script>
+</div>
+</body>
+</html>

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="../../img/favicon.ico" type="image/x-icon">
+    <title>网上共青团·智慧团建</title>
+    <!-- 引入vue -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.js"></script>
+    <!-- 引入element-ui样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入element-ui组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <!-- 引入axios-->
+    <script src="../../js/axios-0.18.0.js"></script>
+    <!-- 引入特定的css -->
+    <link rel="stylesheet" href="../../css/myorganization.css" />
+</head>
+<body>
+<div id="app">
+    <el-container style="height: 500px; border: 1px solid #eee">
+        <el-header style="height:74px; text-align: right; font-size: 12px">
+            <div id="images">
+                <img id="logo" src="../../img/logo.png" alt=""/>
+                <img id="title" src="../../img/title.png" alt=""/>
+            </div>
+            <el-dropdown style="position: relative;top: 8px">
+                <i class="el-icon-setting" style="margin-right: 20px;"><span>系统设置</span></i>
+                <el-dropdown-menu slot="dropdown" style="margin-right: 115px;">
+                    <el-dropdown-item @click.native="changepwd()">修改密码</el-dropdown-item>
+                    <el-dropdown-item @click.native="destroy()">注销账户</el-dropdown-item>
+                    <el-dropdown-item>设置默认组织</el-dropdown-item>
+                    <el-dropdown-item>安全中心</el-dropdown-item>
+                </el-dropdown-menu>
+                <i class="el-icon-question" style="margin-right: 15px;"><span>帮助</span></i>
+                <i class="el-icon-switch-button" style="margin-right: 15px;" @click="logout()">
+                    <span @click.native="logout()">退出</span>
+                </i>
+            </el-dropdown>
+        </el-header>
+
+        <el-container>
+            <el-aside width="250px" style="background-color: #e32322;color: white">
+                <template>
+                    <el-row class="demo-avatar demo-basic" style="height: 200px;margin: 0;padding: 0">
+                        <el-col :span="12" style="margin: 37px 80px;width: 100px;">
+                            <div class="block">
+                                <el-avatar :size="100" :fit="none">
+                                    <img src="../../img/boy.png">
+                                </el-avatar>
+                            </div>
+                            <div v-model="organization.user.name" class="sub-title" style="text-align: center;font-weight: 700;position: relative;top: 10px">
+                                {{organization.user.name}}
+                            </div>
+                        </el-col>
+                    </el-row>
+                </template>
+
+                <el-menu :default-openeds="['1', '7']" style="background-color: #e32322;">
+                    <el-menu-item index="1" style="color: white" @click.native="home()"><i class="el-icon-s-home"></i>我的首页
+                    </el-menu-item>
+                    <el-menu-item index="2" style="color: white">
+                        <i class="el-icon-s-custom"></i>我的组织
+                    </el-menu-item>
+                    <el-submenu index="3" style="color: white">
+                        <template slot="title" style="color: white"><i class="el-icon-edit-outline"></i>
+                            <span style="color: white">三会</span>
+                        </template>
+                        <el-menu-item-group>
+                            <el-menu-item index="3-1">支部团员大会</el-menu-item>
+                            <el-menu-item index="3-2">支部委员会</el-menu-item>
+                            <el-menu-item index="3-3">团小组会</el-menu-item>
+                        </el-menu-item-group>
+                    </el-submenu>
+                    <el-submenu index="4" style="color: white">
+                        <template slot="title" style="color: white"><i class="el-icon-folder-opened"></i>
+                            <span style="color: white">团课</span>
+                        </template>
+                        <el-menu-item-group>
+                            <el-menu-item index="4-1">团课</el-menu-item>
+                        </el-menu-item-group>
+                    </el-submenu>
+                    <el-menu-item index="5" style="color: white"><i class="el-icon-connection"></i>两制</el-menu-item>
+                    <el-menu-item index="6" style="color: white" @click.native="activity()">
+                        <i class="el-icon-attract"></i>团日活动
+                    </el-menu-item>
+                    <el-menu-item index="7" style="color: white"><i class="el-icon-refresh"></i>关系接转</el-menu-item>
+                </el-menu>
+            </el-aside>
+
+            <el-main>
+                <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" @select="handleSelect">
+                    <el-menu-item index="1">
+                        <i class="el-icon-location-information" style="color: red"></i>当前位置:我的组织
+                    </el-menu-item>
+                </el-menu>
+                <div class="line"></div>
+                <el-row :gutter="0">
+                    <el-col :span="8" style="margin-right: 100px;">
+                        <div class="grid-content bg-purple">
+                            <el-card class="box-card">
+                                <div slot="header" class="clearfix">
+                                    <span><i class="el-icon-postcard" style="color: red"></i> 团组织信息</span>
+                                    <el-button style="float: right; padding: 3px 0" type="text">查看</el-button>
+                                </div>
+                                <template>
+                                    <el-descriptions class="margin-top" :column="2" :size="size" border>
+                                        <el-descriptions-item>
+                                            <template slot="label">
+                                                组织简称
+                                            </template>
+                                            {{organization.name}}
+                                        </el-descriptions-item>
+                                        <el-descriptions-item>
+                                            <template slot="label">
+                                                组织全称
+                                            </template>
+                                            {{'河北省沧州市黄骅市沧州交通学院计算机与信息技术学院'+organization.name }}
+                                        </el-descriptions-item>
+                                        <el-descriptions-item>
+                                            <template slot="label">
+                                                组织类别
+                                            </template>
+                                            {{'团支部'}}
+                                        </el-descriptions-item>
+                                        <el-descriptions-item>
+                                            <template slot="label">
+                                                上级组织
+                                            </template>
+                                            {{'沧州交通学院计算机与信息技术学院团委'}}
+                                        </el-descriptions-item>
+                                        <el-descriptions-item>
+                                            <template slot="label">
+                                                所属行业
+                                            </template>
+                                            {{'普通高等院校'}}
+                                        </el-descriptions-item>
+                                        <el-descriptions-item>
+                                            <template slot="label">
+                                                团员人数
+                                            </template>
+                                            {{userList.length+'位'}}
+                                        </el-descriptions-item>
+                                    </el-descriptions>
+                                </template>
+                            </el-card>
+                        </div>
+                    </el-col>
+
+                    <el-col :span="6" style="width: 480px;">
+                        <div class="grid-content bg-purple">
+                            <el-card class="box-card">
+                                <div slot="header" class="clearfix">
+                                    <span><i class="el-icon-pie-chart" style="color: red"></i> 团支部成员统计</span>
+                                    <el-button style="float: right; padding: 3px 0" type="text">查看</el-button>
+                                </div>
+                                <el-progress type="circle" :percentage="60" text-color="#20a0ff"></el-progress>
+                                <el-progress type="circle" :percentage="40" color="#ff0000"
+                                             text-color="#ff0000"></el-progress>
+                                <div style="display: inline-block;margin-left: 40px;position:relative;bottom:60px">
+                                    <el-button icon="el-icon-male" type="primary" circle></el-button>
+                                    <el-button icon="el-icon-female" type="danger" circle></el-button>
+                                </div>
+                            </el-card>
+                        </div>
+                    </el-col>
+                </el-row>
+
+                <el-row :gutter="0">
+                    <el-col :span="20">
+                        <template>
+                            <el-table :data="userList" stripe border style="width: 100%">
+                                <el-table-column type="index" label="序号" width="130" align="center"></el-table-column>
+                                <el-table-column prop="name" label="姓名" align="center"></el-table-column>
+                                <el-table-column :model="alreadyPassed" label="身份证校验" align="center">
+                                    {{alreadyPassed}}
+                                </el-table-column>
+                                <el-table-column prop="phone" label="手机号码" align="center"></el-table-column>
+                                <el-table-column prop="ethnic" label="民族" align="center"></el-table-column>
+                                <el-table-column label="查看" width="130" align="center">
+                                    <i class="el-icon-view" @click="dialogVisible = true" style="color: red;cursor:pointer;font-size:25px"></i>
+                                </el-table-column>
+                            </el-table>
+                            <el-dialog title="提示" :visible.sync="dialogVisible" width="20%">
+                                <span style="">权（还）限（没）不（做）足（完）！！</span>
+                                <span slot="footer" class="dialog-footer">
+                                    <el-button @click="dialogVisible = false">取 消</el-button>
+                                    <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+                                </span>
+                            </el-dialog>
+                        </template>
+
+
+                    </el-col>
+                </el-row>
+
+            </el-main>
+        </el-container>
+    </el-container>
+
+
+    <script>
+        new Vue({
+            el: "#app",
+            data() {
+                return {
+                    size: 'mini',
+                    organization: {},
+                    userList: [],
+                    alreadyPassed: "已通过",
+                    circleUrl: "https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png",
+                    dialogVisible: false,
+                    rules: {
+                        name: [
+                            {required: true, message: '请输入更新后的姓名', trigger: 'blur'},
+                            {min: 2, max: 10, message: '长度在 2 到 10 个汉字', trigger: 'blur'}
+                        ],
+                        ethnic: [
+                            {required: true, message: '请输入更新后的民族', trigger: 'change'}
+                        ],
+                        phone: [
+                            {required: true, message: '请输入更新后的手机号', trigger: 'blur'},
+                            {min: 3, max: 11, message: '长度在 3 到 11 个字符', trigger: 'blur'}
+                        ]
+                    }
+                }
+            },
+            methods: {
+                changepwd() {
+                    location.href = "changepwd.html";
+                },
+                destroy() {
+                    location.href = "destroy.html";
+                },
+                logout() {
+                    axios.get("/users/logout").then(function (resp) {
+                        location.href = "../index.html";
+                    })
+                },
+                update() {
+                    location.href = "update.html";
+                },
+                home() {
+                    location.href = "home.html";
+                },
+                activity() {
+                    location.href = "activity.html";
+                },
+                submitForm(formName) {
+                    this.$refs[formName].validate((valid) => {
+                        if (valid) {
+                            axios.put("/users", this.organization).then(function (resp) {
+                                alert("更新成功！");
+                                location.reload();
+                            })
+                        } else {
+                            alert("更新失败！");
+                            location.reload();
+                            return false;
+                        }
+                    });
+                },
+            },
+            //钩子函数
+            mounted() {
+                var _this = this;
+                axios.get("/users/1").then(function (resp) {
+                    _this.organization = resp.data
+                })
+                axios.get("/users").then(function (resp) {
+                    _this.userList = resp.data
+                })
+            }
+        })
+    </script>
+</div>
+</body>
+</html>

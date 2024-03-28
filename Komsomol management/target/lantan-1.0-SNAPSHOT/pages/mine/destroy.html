@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="../../img/favicon.ico" type="image/x-icon">
+    <title>网上共青团·智慧团建</title>
+    <!-- 引入vue -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.js"></script>
+    <!-- 引入element-ui样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入element-ui组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <!-- 引入axios-->
+    <script src="../../js/axios-0.18.0.js"></script>
+    <!-- 引入特定的css -->
+    <link rel="stylesheet" href="../../css/destroy.css" />
+</head>
+<body>
+<div id="app">
+    <el-container style="height: 500px; border: 1px solid #eee">
+        <el-header style="height:74px; text-align: right; font-size: 12px">
+            <div id="images">
+                <img id="logo" src="../../img/logo.png" alt=""/>
+                <img id="title" src="../../img/title.png" alt=""/>
+            </div>
+            <el-dropdown style="position: relative;top: 8px">
+                <i class="el-icon-setting" style="margin-right: 20px;"><span>系统设置</span></i>
+                <el-dropdown-menu slot="dropdown" style="margin-right: 115px;">
+                    <el-dropdown-item @click.native="changepwd()">修改密码</el-dropdown-item>
+                    <el-dropdown-item @click.native="destroy()">注销账户</el-dropdown-item>
+                    <el-dropdown-item>设置默认组织</el-dropdown-item>
+                    <el-dropdown-item>安全中心</el-dropdown-item>
+                </el-dropdown-menu>
+                <i class="el-icon-question" style="margin-right: 15px;"><span>帮助</span></i>
+                <i class="el-icon-switch-button" style="margin-right: 15px;" @click="logout()">
+                    <span @click.native="logout()">退出</span>
+                </i>
+            </el-dropdown>
+        </el-header>
+
+        <el-container>
+            <el-aside width="250px" style="background-color: #e32322;color: white">
+                <template>
+                    <el-row class="demo-avatar demo-basic" style="height: 200px;margin: 0;padding: 0">
+                        <el-col :span="12" style="margin: 37px 80px;width: 100px;">
+                            <div class="block">
+                                <el-avatar :size="100" :fit="none">
+                                    <img src="../../img/boy.png">
+                                </el-avatar>
+                            </div>
+                            <div v-model="organization.user.name" class="sub-title" style="text-align: center;font-weight: 700;position: relative;top: 10px">
+                                {{organization.user.name}}
+                            </div>
+                        </el-col>
+                    </el-row>
+                </template>
+
+                <el-menu :default-openeds="['1', '7']" style="background-color: #e32322;">
+                    <el-menu-item index="1" style="color: white"  @click.native="home()">
+                        <i class="el-icon-s-home"></i>我的首页
+                    </el-menu-item>
+                    <el-menu-item index="2" style="color: white" @click.native="myorganization()">
+                        <i class="el-icon-s-custom"></i>我的组织
+                    </el-menu-item>
+                    <el-submenu index="3" style="color: white">
+                        <template slot="title" style="color: white"><i class="el-icon-edit-outline"></i>
+                            <span style="color: white">三会</span>
+                        </template>
+                        <el-menu-item-group>
+                            <el-menu-item index="3-1">支部团员大会</el-menu-item>
+                            <el-menu-item index="3-2">支部委员会</el-menu-item>
+                            <el-menu-item index="3-3">团小组会</el-menu-item>
+                        </el-menu-item-group>
+                    </el-submenu>
+                    <el-submenu index="4" style="color: white">
+                        <template slot="title" style="color: white"><i class="el-icon-folder-opened"></i>
+                            <span style="color: white">团课</span>
+                        </template>
+                        <el-menu-item-group>
+                            <el-menu-item index="4-1">团课</el-menu-item>
+                        </el-menu-item-group>
+                    </el-submenu>
+                    <el-menu-item index="5" style="color: white"><i class="el-icon-connection"></i>两制</el-menu-item>
+                    <el-menu-item index="6" style="color: white" @click.native="activity()">
+                        <i class="el-icon-attract"></i>团日活动
+                    </el-menu-item>
+                    <el-menu-item index="7" style="color: white"><i class="el-icon-refresh"></i>关系接转</el-menu-item>
+                </el-menu>
+            </el-aside>
+
+            <el-main>
+                <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" @select="handleSelect">
+                    <el-menu-item index="1">
+                        <i class="el-icon-location-information" style="color: red"></i>当前位置:注销账户</el-menu-item>
+                </el-menu>
+                <div class="line"></div>
+                <el-row :gutter="600">
+                    <el-col :span="6">
+                        <div class="grid-content bg-purple">
+                            <el-card class="box-card">
+                                <div slot="header" class="clearfix">
+                                    <span>注销账户</span>
+                                </div>
+                                <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
+                                    <el-form-item label="密码" prop="pass">
+                                        <el-input type="password" v-model="ruleForm.pass" autocomplete="off"></el-input>
+                                    </el-form-item>
+                                    <el-form-item label="确认密码" prop="checkPass">
+                                        <el-input type="password" v-model="ruleForm.checkPass" autocomplete="off"></el-input>
+                                    </el-form-item>
+                                    <el-form-item>
+                                        <el-button type="primary" @click="submitForm('ruleForm')">提交</el-button>
+                                        <el-button @click="resetForm('ruleForm')">重置</el-button>
+
+                                    </el-form-item>
+                                </el-form>
+                            </el-card>
+                        </div>
+                    </el-col>
+                </el-row>
+
+            </el-main>
+        </el-container>
+    </el-container>
+
+
+    <script>
+        new Vue({
+            el: "#app",
+            data() {
+                var validatePass = (rule, value, callback) => {
+                    if (value === '') {
+                        callback(new Error('请输入密码'));
+                    } else {
+                        if (this.ruleForm.checkPass !== '') {
+                            this.$refs.ruleForm.validateField('checkPass');
+                        }
+                        callback();
+                    }
+                };
+                var validatePass2 = (rule, value, callback) => {
+                    if (value === '') {
+                        callback(new Error('请再次输入密码'));
+                    } else if (value !== this.ruleForm.pass) {
+                        callback(new Error('两次输入密码不一致!'));
+                    } else {
+                        callback();
+                    }
+                };
+                return {
+                    ruleForm: {
+                        pass: '',
+                        checkPass: '',
+                    },
+                    rules: {
+                        pass: [
+                            { validator: validatePass, trigger: 'blur' }
+                        ],
+                        checkPass: [
+                            { validator: validatePass2, trigger: 'blur' }
+                        ]
+                    },
+                    organization: {user:{pwd:""}},
+                    circleUrl: "https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png"
+
+                };
+            },
+            methods:{
+                home(){
+                    location.href="home.html";
+                },
+                changepwd(){
+                    location.href="changepwd.html";
+                },
+                logout(){
+                    axios.get("/users/logout").then(function (resp) {
+                        location.href="../index.html";
+                    })
+                },
+                update(){
+                    location.href="update.html";
+                },
+                myorganization(){
+                    location.href="myorganization.html";
+                },
+                activity(){
+                    location.href="activity.html";
+                },
+                submitForm(formName) {
+                    this.$refs[formName].validate((valid) => {
+                        if (valid) {
+                            if (this.organization.user.pwd===this.ruleForm.pass){
+                                console.log(this.organization.user.card+this.organization.user.pwd+this.ruleForm.pass);
+                                alert("注销账户成功！");
+                                axios.delete("/users").then(function (resp){
+                                    location.href="../index.html";
+                                })
+                            }else alert("密码错误，请重新输入！");;
+                        } else {
+                            console.log('error submit!!');
+                            return false;
+                        }
+                    });
+                },
+                resetForm(formName) {
+                    this.$refs[formName].resetFields();
+                }
+            },
+            //钩子函数
+            mounted() {
+                var _this = this;
+                axios.get("/users/1").then(function (resp) {
+                    _this.organization = resp.data;
+                })
+            }
+        })
+    </script>
+</div>
+</body>
+</html>

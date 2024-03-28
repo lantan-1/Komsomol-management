@@ -1,0 +1,8 @@
+*.yml linguist-language=Java 
+*.html linguist-language=Vue 
+*.js linguist-language=Vue 
+*.xml linguist-language=Java
+*.css linguist-language=Vue 
+*.sql linguist-language=Java
+*.uml linguist-language=Java 
+*.cmd linguist-language=Java
